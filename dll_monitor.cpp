@@ -13,6 +13,7 @@ void ParseOption(int argc, char** argv) {
         ("process_name", "print all the loaded dlls of this running process", cxxopts::value<std::string>())
         ("dll_name", "print all the processes loading this dll", cxxopts::value<std::string>())
         ("show_running_process", "show all the currently running process", cxxopts::value<bool>())
+        ("remove_duplicate_name", "remove duplicate process name loading the specific dll", cxxopts::value<bool>())
         ("h,help", "Print usage")
         ;
     auto result = options.parse(argc, argv);
@@ -29,6 +30,11 @@ void ParseOption(int argc, char** argv) {
         }
         else if (result.count("dll_name")) {
             g_options.dllName = result["dll_name"].as<std::string>();
+            if (g_options.dllName.find(".dll") == std::string::npos)
+                g_options.dllName += ".dll";
+            if (result.count("remove_duplicate_name")) {
+                g_options.removeDuplicateName = result["remove_duplicate_name"].as<bool>();
+            }
         }
         else if (result.count("show_running_process")) {
             g_options.showRunningProcess = result["show_running_process"].as<bool>();
@@ -62,21 +68,35 @@ int PrintModules(DWORD processID) {
                 // Print the module name and handle value.
                 fs::path modulePath = szModName;
                 if (!g_options.dllName.empty()) {
-                    if (g_options.dllName.find(".dll") == std::string::npos)
-                        g_options.dllName += ".dll";
-                    if (g_options.dllName.compare(modulePath.filename().string()) == 0) {
-                        //print process name
-                        std::string processName;
-                        cutils::WString2String(cutils::GetProcessNameFromID(processID), processName);
-                        if (processName.empty())
-                            processName = "System process(access denied)";
-                        fmt::print("\t {} {: >50}\n", processName, processID);
-                        break;
+                    if (g_options.removeDuplicateName) {
+						std::string processName;
+						cutils::WString2String(cutils::GetProcessNameFromID(processID), processName);
+						if (processName.empty())
+							processName = "System process(access denied)";
+						static std::set<std::string> processSet;
+                        if (g_options.dllName.compare(modulePath.filename().string()) == 0 && processSet.find(processName) == processSet.end()) {
+                            processSet.insert(processName);
+                            //print process name
+                            fmt::print("\t {} {: >50}\n", processName, processID);
+                            break;
+                        }
+                    }
+                    else {
+						if (g_options.dllName.compare(modulePath.filename().string()) == 0) {
+							//print process name
+							std::string processName;
+							cutils::WString2String(cutils::GetProcessNameFromID(processID), processName);
+							if (processName.empty())
+								processName = "System process(access denied)";
+							fmt::print("\t {} {: >50}\n", processName, processID);
+							break;
+						}
                     }
                 }
                 
-                if (!g_options.processName.empty()) 
+                if (!g_options.processName.empty()) {
                     fmt::print("\t {} {: >100}\n", modulePath.filename().string().c_str(), modulePath.string().c_str());
+                }
             }
         }
     }
