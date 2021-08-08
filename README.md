@@ -6,10 +6,10 @@ DLL monitor tool
 ```
 dll_monitor.exe --process_name=
 ```
-<img src="https://github.com/xindzju/dll_monitor/blob/main/assets/monitor_process_dll.png" width="500" height="400" alt="monitor_process_dll"/>
+<img src="https://github.com/xindzju/dll_monitor/blob/main/assets/monitor_process_dll.png" alt="monitor_process_dll"/>
 
 ### Show all the running process loading a specific dll
 ```
 dll_monitor.exe --dll_name=
 ```
-<img src="https://github.com/xindzju/dll_monitor/blob/main/assets/monitor_dll_process.png" width="500" height="400" alt="monitor_dll_process"/>
+<img src="https://github.com/xindzju/dll_monitor/blob/main/assets/monitor_dll_process.png" alt="monitor_dll_process"/>
