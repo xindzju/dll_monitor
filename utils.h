@@ -7,4 +7,5 @@ struct Options {
 	std::string dllName;
 	bool showRunningProcess;
 	bool removeDuplicateName;
+	bool killAll;
 };

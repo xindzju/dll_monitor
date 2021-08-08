@@ -14,6 +14,7 @@ void ParseOption(int argc, char** argv) {
         ("dll_name", "print all the processes loading this dll", cxxopts::value<std::string>())
         ("show_running_process", "show all the currently running process", cxxopts::value<bool>())
         ("remove_duplicate_name", "remove duplicate process name loading the specific dll", cxxopts::value<bool>())
+        ("kill_all", "kill all the processes of loading a specific dll, using with option dll_name", cxxopts::value<bool>())
         ("h,help", "Print usage")
         ;
     auto result = options.parse(argc, argv);
@@ -34,6 +35,9 @@ void ParseOption(int argc, char** argv) {
                 g_options.dllName += ".dll";
             if (result.count("remove_duplicate_name")) {
                 g_options.removeDuplicateName = result["remove_duplicate_name"].as<bool>();
+            }
+            if (result.count("kill_all")) {
+                g_options.killAll = result["kill_all"].as<bool>();
             }
         }
         else if (result.count("show_running_process")) {
@@ -68,7 +72,7 @@ int PrintModules(DWORD processID) {
                 // Print the module name and handle value.
                 fs::path modulePath = szModName;
                 if (!g_options.dllName.empty()) {
-                    if (g_options.removeDuplicateName) {
+                    if (g_options.removeDuplicateName) { //remove duplicated process name
 						std::string processName;
 						cutils::WString2String(cutils::GetProcessNameFromID(processID), processName);
 						if (processName.empty())
@@ -89,6 +93,9 @@ int PrintModules(DWORD processID) {
 							if (processName.empty())
 								processName = "System process(access denied)";
 							fmt::print("\t {} {: >50}\n", processName, processID);
+                            if (g_options.killAll) {
+                                cutils::KillProcess(processID);
+                            }
 							break;
 						}
                     }
