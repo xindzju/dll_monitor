@@ -13,8 +13,8 @@ void ParseOption(int argc, char** argv) {
         ("process_name", "print all the loaded dlls of this running process", cxxopts::value<std::string>())
         ("dll_name", "print all the processes loading this dll", cxxopts::value<std::string>())
         ("show_running_process", "show all the currently running process", cxxopts::value<bool>())
-        ("remove_duplicate_name", "remove duplicate process name loading the specific dll", cxxopts::value<bool>())
-        ("kill_all", "kill all the processes of loading a specific dll, using with option dll_name", cxxopts::value<bool>())
+        ("remove_duplicate_name", "remove duplicate process name loading the specific dll, using with option --dll_name", cxxopts::value<bool>())
+        ("kill_all", "kill all the processes of loading a specific dll, using with option --dll_name", cxxopts::value<bool>())
         ("h,help", "Print usage")
         ;
     auto result = options.parse(argc, argv);
