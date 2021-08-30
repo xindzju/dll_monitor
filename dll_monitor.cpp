@@ -51,14 +51,19 @@ void ParseOption(int argc, char** argv) {
 }
 
 int PrintModules(DWORD processID) {
+#if 0 //debug purpose
+    std::wcout << "\n==================================================" << "Process name: " << cutils::GetProcessNameFromID(processID) << "\tProcess id: " << processID << std::endl;
+#endif
     HMODULE hMods[1024];
     HANDLE hProcess;
     DWORD cbNeeded;
 
     // Get a handle to the process.
     hProcess = OpenProcess(PROCESS_QUERY_INFORMATION |PROCESS_VM_READ, FALSE, processID);
-    if (NULL == hProcess)
+    if (NULL == hProcess) {
+        std::cout << "System process, can't get the process handle, process id: " <<processID << std::endl;
         return 1;
+    }
 
     // Get a list of all the modules in this process.
     if( EnumProcessModules(hProcess, hMods, sizeof(hMods), &cbNeeded))
@@ -107,7 +112,9 @@ int PrintModules(DWORD processID) {
             }
         }
     }
-    
+    else {
+        std::wcout << "EnumProcessModules failed, Process name: " << cutils::GetProcessNameFromID(processID) << "\tProcess id: " << processID << std::endl;
+    }
     // Release the handle to the process.
     CloseHandle( hProcess );
 
