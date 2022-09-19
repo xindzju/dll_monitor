@@ -17,13 +17,25 @@ void ParseOption(int argc, char** argv) {
         ("kill_all", "kill all the processes of loading a specific dll, using with option --dll_name", cxxopts::value<bool>())
         ("h,help", "Print usage")
         ;
+
+    options.allow_unrecognised_options();
     auto result = options.parse(argc, argv);
 
+    //unmatched arguments
+    if (result.unmatched().size() > 0) {
+        std::cout << "Unmatched args: ";
+        for (auto& arg : result.unmatched())
+            std::cout << arg << "\t";
+        exit(0);
+    }
+
+    //print help strings
     if (result.count("help")) {
         std::cout << options.help() << std::endl;
         exit(0);
     }
     else {
+        //handle each argument
         if (result.count("process_name")) {
             g_options.processName = result["process_name"].as<std::string>();
             if (g_options.processName.find(".exe") == std::string::npos)
